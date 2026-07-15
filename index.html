@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ffffff">
+  <title>GIGR — Gigs Made Frictionless</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Black gate shown until every available .glb has loaded */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #000;
+      transition: opacity 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; pointer-events: none; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: rgba(0,0,0,0.04);
+      --surface-hi: rgba(0,0,0,0.07);
+      --border: rgba(0,0,0,0.1);
+      --border-hi: rgba(0,0,0,0.22);
+      --text: #0a0a0a;
+      --text-2: #3a3a3a;
+      --text-3: #888888;
+      --sans: 'Space Grotesk', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: var(--bg);
+      font-family: var(--sans);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #canvas-container {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+    }
+    #canvas-container canvas { display: block; }
+
+    /* Subtle edge fade */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 2;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(240,240,240,0.35) 100%);
+      pointer-events: none;
+    }
+
+    /* ─── Slides ─── */
+    #slides { position: fixed; inset: 0; z-index: 10; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: none;
+      align-items: center;
+      will-change: transform, opacity;
+    }
+    .slide.active { display: flex; }
+
+    /* ─── Split layout helper ─── */
+    .split {
+      display: flex;
+      width: 100%; height: 100%;
+      align-items: center;
+      gap: 0;
+    }
+    .split-3d {
+      flex: 0 0 42%;
+      height: 100%;
+      /* Empty — Three.js canvas is global behind */
+    }
+    .split-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      padding: 72px 72px 72px 32px;
+    }
+    .split-content.pad-full {
+      padding: 72px 72px 72px 72px;
+    }
+
+    /* ─── Shared text ─── */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      border-left: 2px solid var(--border-hi);
+      padding-left: 10px;
+    }
+
+    .slide-title {
+      font-size: clamp(2.4rem, 4.8vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: var(--text);
+      text-shadow: 0 1px 18px rgba(255, 255, 255, 0.85);
+    }
+
+    .slide-body {
+      font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+      line-height: 1.65;
+      color: var(--text-2);
+      font-weight: 400;
+      max-width: 480px;
+      text-shadow: 0 1px 14px rgba(255, 255, 255, 0.8);
+    }
+
+    /* ─── Cards (problem / trust / solution) ─── */
+    .cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    /* Story cards (slide 1) */
+    .story-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .story-text {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .story-author {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      color: var(--text-3);
+      text-transform: uppercase;
+    }
+
+    /* Trust cards (slide 2) */
+    .trust-card {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .trust-card-icon {
+      width: 20px; height: 20px;
+      flex-shrink: 0;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+    .trust-card-content h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .trust-card-content p {
+      font-size: 0.8rem;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    /* Solution cards (slide 5) */
+    .solution-card {
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .solution-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .solution-card p {
+      font-size: 0.8rem;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    /* ─── Slide 0: Hero ─── */
+    #slide-0 { padding: 0; }
+
+    .brand-name {
+      font-size: clamp(6rem, 15vw, 12rem);
+      font-weight: 800;
+      letter-spacing: -0.045em;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .brand-logo {
+      height: clamp(52px, 8vw, 92px);
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .tagline {
+      font-family: var(--mono);
+      font-size: clamp(0.7rem, 1.4vw, 0.88rem);
+      letter-spacing: 0.24em;
+      color: var(--text-3);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+    }
+    .tagline-cursor {
+      display: none;
+      width: 2px; height: 1em;
+      background: var(--text-3);
+      margin-left: 3px;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ─── Slide 3: Definition ─── */
+    #slide-3 { justify-content: center; }
+
+    .definition-card {
+      max-width: 620px;
+      padding: 48px 54px 52px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset,
+                  0 30px 80px -48px rgba(0, 0, 0, 0.4);
+    }
+
+    .definition-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .definition-headline {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin-bottom: 30px;
+    }
+
+    .definition-word {
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .definition-pos {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .def-ipa {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      color: var(--text-3);
+    }
+    .def-tag {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 4px 10px;
+      border: 1px solid var(--border-hi);
+      border-radius: 100px;
+    }
+
+    .definition-meaning {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .def-sense {
+      display: flex;
+      gap: 14px;
+      font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+      line-height: 1.7;
+      color: var(--text-2);
+      font-weight: 400;
+    }
+    .def-num {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+      background: var(--text);
+      border-radius: 6px;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .definition-foot {
+      margin-top: 30px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .definition-foot::before {
+      content: '';
+      width: 7px; height: 7px;
+      background: var(--text);
+      border-radius: 50%;
+    }
+
+    /* ─── Slide 4: Components / Glitch ─── */
+    .glitch-title {
+      font-size: clamp(2.6rem, 5.5vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.0;
+      color: var(--text);
+    }
+
+    .component-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .component-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .component-idx {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text);
+      padding-top: 5px;
+      min-width: 30px;
+      border-top: 2px solid var(--text);
+    }
+    .component-body h3 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+    .component-body p {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text-2);
+      max-width: 340px;
+    }
+
+    /* ─── AI prompts (slides 6, 7) ─── */
+    .ai-prompts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ai-prompt {
+      padding: 13px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.83rem;
+      line-height: 1.55;
+      color: var(--text-2);
+    }
+
+    .arrow { color: var(--text-3); font-family: var(--mono); }
+    .ai-result { font-weight: 600; color: var(--text); }
+
+    /* ─── Slide 8: Platform ─── */
+    #slide-8 {
+      align-items: flex-start;
+      padding: 64px 72px 80px;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .s8-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .s8-logo {
+      height: 44px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      width: 100%;
+    }
+
+    .feature-col {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 12px;
+      padding: 22px 20px 24px;
+      box-shadow: 0 20px 50px -38px rgba(0, 0, 0, 0.5);
+    }
+    .feature-col h3 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 7px;
+    }
+    .feature-col p {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: var(--text-2);
+      font-weight: 400;
+    }
+
+    .rep-badge {
+      margin-top: 20px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-2);
+      padding: 7px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 14px 40px -34px rgba(0, 0, 0, 0.5);
+      display: inline-block;
+    }
+
+    /* ─── Slide 5 subtitle ─── */
+    .slide-subtitle {
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      font-weight: 600;
+      color: var(--text-2);
+    }
+
+    /* ─── Slide 9: Final ─── */
+    #slide-9 {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .final-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      padding: 54px 64px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 30px 90px -40px rgba(0, 0, 0, 0.35);
+    }
+
+    .final-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      font-weight: 600;
+    }
+
+    .final-slide-word {
+      font-size: clamp(4rem, 12vw, 10rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 0.92;
+      color: var(--text);
+      text-shadow: 0 2px 30px rgba(255, 255, 255, 0.9);
+    }
+
+    .final-slide-sub {
+      font-size: clamp(1.05rem, 2vw, 1.4rem);
+      color: var(--text-2);
+      font-weight: 500;
+      max-width: 30ch;
+    }
+
+    .final-tags {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .final-tags span {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text);
+      padding: 9px 18px;
+      border: 1.5px solid var(--text);
+      border-radius: 999px;
+    }
+
+    /* ─── Top left ─── */
+    #top-left {
+      position: fixed; top: 26px; left: 34px;
+      z-index: 100;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      color: var(--text-3);
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    /* ─── Top right ─── */
+    #top-controls {
+      position: fixed; top: 20px; right: 30px;
+      z-index: 100;
+    }
+
+    #fullscreen-btn {
+      width: 34px; height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text-3);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+    }
+    #fullscreen-btn:hover { background: var(--surface-hi); color: var(--text); border-color: var(--border-hi); }
+    #fullscreen-btn svg { width: 13px; height: 13px; }
+    #fs-compress { display: none; }
+
+    /* ─── Nav ─── */
+    #nav {
+      position: fixed; bottom: 30px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: none;
+    }
+    #nav > * { pointer-events: auto; }
+
+    .nav-btn {
+      width: 40px; height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      color: var(--text-2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.95); border-color: var(--border-hi); color: var(--text); }
+    .nav-btn svg { width: 14px; height: 14px; }
+
+    #progress-dots {
+      display: flex; gap: 6px; align-items: center;
+    }
+
+    .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #ccc;
+      cursor: pointer;
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s, border-radius 0.3s;
+    }
+    .dot.active {
+      width: 20px;
+      border-radius: 3px;
+      background: var(--text-3);
+    }
+
+    #slide-counter {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--text-3);
+      min-width: 52px;
+      text-align: center;
+      user-select: none;
+    }
+
+    @media (max-width: 768px) {
+      .split { flex-direction: column; }
+      .split-3d { display: none; }
+      .split-content { padding: 52px 32px; }
+      .features-grid { grid-template-columns: 1fr; }
+      #slide-8 { padding: 52px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loader"></div>
+
+  <div id="canvas-container"></div>
+
+  <div id="top-left">GIGR</div>
+
+  <div id="top-controls">
+    <button id="fullscreen-btn" title="Toggle fullscreen">
+      <svg id="fs-expand" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/>
+      </svg>
+      <svg id="fs-compress" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M6 2v4H2M10 2v4h4M14 10h-4v4M6 10H2v4"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="slides">
+
+    <!-- SLIDE 0: Hero -->
+    <div class="slide active" id="slide-0">
+      <div class="split">
+        <div class="split-3d" id="s1-3d"></div>
+        <div class="split-content">
+          <img src="logo.png" alt="GIGR" class="brand-logo" id="s1-logo" onerror="this.style.display='none'">
+          <div class="brand-name" id="s1-brand">GIGR</div>
+          <div class="tagline" id="s1-tagline">
+            <span id="s1-tagline-text"></span>
+            <span class="tagline-cursor" id="s1-cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 1: Problem stories -->
+    <div class="slide" id="slide-1">
+      <div class="split">
+        <div class="split-3d" id="s2-3d"></div>
+        <div class="split-content">
+          <div class="slide-title" id="s2-title">The Problem</div>
+          <div class="slide-body" id="s2-body">Real stories. Real frustration.</div>
+          <div class="cards-list">
+            <div class="story-card" id="s2-card0">
+              <div class="story-text">"I gave him ₦15,000 upfront. He vanished."</div>
+              <div class="story-author">Client, Owerri</div>
+            </div>
+            <div class="story-card" id="s2-card1">
+              <div class="story-text">"She said she'd transfer. That was 8 days ago."</div>
+              <div class="story-author">Plumber, Ihiagwa</div>
+            </div>
+            <div class="story-card" id="s2-card2">
+              <div class="story-text">"I can't tell who's legit. Everyone looks the same."</div>
+              <div class="story-author">Homeowner, Lagos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Trust Gap -->
+    <div class="slide" id="slide-2">
+      <div class="split">
+        <div class="split-content pad-full">
+          <div class="slide-title" id="s6-title">THE TRUST GAP</div>
+          <div class="slide-body" id="s6-body">No escrow. No reputation. No accountability.</div>
+          <div class="cards-list">
+            <div class="trust-card" id="s6-card0">
+              <svg class="trust-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div class="trust-card-content">
+                <h3>Clients Risk Losing Money</h3>
+                <p>Upfront payments with zero guarantee.</p>
+              </div>
+            </div>
+            <div class="trust-card" id="s6-card1">
+              <svg class="trust-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+              </svg>
+              <div class="trust-card-content">
+                <h3>Providers Risk Not Getting Paid</h3>
+                <p>Work done, then chase payments.</p>
+              </div>
+            </div>
+            <div class="trust-card" id="s6-card2">
+              <svg class="trust-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+              </svg>
+              <div class="trust-card-content">
+                <h3>No Verifiable Track Record</h3>
+                <p>Good work goes unrecognised.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="split-3d" id="s6-3d"></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Definition -->
+    <div class="slide" id="slide-3">
+      <div class="definition-card">
+        <div class="definition-eyebrow" id="def-eyebrow">Lexicon · Entry 01</div>
+        <div class="definition-headline">
+          <div class="definition-word" id="def-word">fric·tion·less</div>
+          <div class="definition-pos" id="def-phonetic">
+            <span class="def-ipa">/ˈfrikSHənləs/</span>
+            <span class="def-tag">adjective</span>
+          </div>
+        </div>
+        <div class="definition-meaning" id="def-meaning">
+          <div class="def-sense">
+            <span class="def-num">1</span>
+            <span>Achieving progress with minimal resistance.</span>
+          </div>
+          <div class="def-sense">
+            <span class="def-num">2</span>
+            <span>A system where technology fades into the background, leaving only the outcome.</span>
+          </div>
+        </div>
+        <div class="definition-foot" id="def-foot">Gigr · Frictionless by design</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Components -->
+    <div class="slide" id="slide-4">
+      <div class="split">
+        <div class="split-content pad-full">
+          <div class="section-label" id="s4-eyebrow">| ARCHITECTURE</div>
+          <div class="glitch-title" id="s4-title">
+            <div id="s4-line1">COMPONENTS</div>
+            <div id="s4-line2">WORKING TOGETHER</div>
+          </div>
+          <div class="component-list">
+            <div class="component-row" id="s4-c0">
+              <span class="component-idx">01</span>
+              <div class="component-body">
+                <h3>Solana Speed</h3>
+                <p>Sub-second settlement at near-zero cost.</p>
+              </div>
+            </div>
+            <div class="component-row" id="s4-c1">
+              <span class="component-idx">02</span>
+              <div class="component-body">
+                <h3>AI Autonomy</h3>
+                <p>Agents negotiate, verify, and act on your behalf.</p>
+              </div>
+            </div>
+            <div class="component-row" id="s4-c2">
+              <span class="component-idx">03</span>
+              <div class="component-body">
+                <h3>Cryptographic Trust</h3>
+                <p>Escrow and reputation enforced on-chain.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="split-3d" id="s4-3d"></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Solution -->
+    <div class="slide" id="slide-5">
+      <div class="split">
+        <div class="split-content pad-full">
+          <div class="slide-title" id="s5-title">Our Solution</div>
+          <div class="slide-subtitle" id="s5-sub">Three layers. One trust engine.</div>
+          <div class="cards-list">
+            <div class="solution-card" id="s5-card0">
+              <h3>◻ Social Vouching</h3>
+              <p>cNFT minted after every completed job via Underdog Protocol.</p>
+            </div>
+            <div class="solution-card" id="s5-card1">
+              <h3>◻ Smart Contract Escrow</h3>
+              <p>Funds locked on-chain. Released only on confirmation.</p>
+            </div>
+            <div class="solution-card" id="s5-card2">
+              <h3>◻ Frictionless Blockchain</h3>
+              <p>Google sign-in. Pay in Naira. No wallet. No gas.</p>
+            </div>
+          </div>
+        </div>
+        <div class="split-3d" id="s5-3d"></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Web3 Abstraction -->
+    <div class="slide" id="slide-6">
+      <div class="split">
+        <div class="split-3d" id="s7-3d"></div>
+        <div class="split-content">
+          <div class="slide-title" id="w3-title">WEB3 POWER.<br>WEB2 SIMPLICITY.</div>
+          <div class="section-label" id="w3-label1">| WHAT THE USER SEES</div>
+          <div class="slide-body" id="w3-intro">Sign in with Google. Browse gigs. Pay in Naira. Done.</div>
+          <div class="section-label" id="w3-label2">| WHAT RUNS UNDERNEATH</div>
+          <div class="ai-prompts-list">
+            <div class="ai-prompt" id="w3-p0"><span>Solana validators secure every transaction.</span></div>
+            <div class="ai-prompt" id="w3-p1"><span>Smart contracts hold funds in trustless escrow.</span></div>
+            <div class="ai-prompt" id="w3-p2"><span>cNFTs build immutable, portable reputation.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Gigidy AI -->
+    <div class="slide" id="slide-7">
+      <div class="split">
+        <div class="split-3d" id="s8-3d"></div>
+        <div class="split-content">
+          <div class="slide-title" id="ai-title">GIGIDY AI</div>
+          <div class="section-label">| YOUR AI ASSISTANT</div>
+          <div class="slide-body" id="ai-intro">Gigidy calls, negotiates, sets up the gig, verifies, and releases payment.</div>
+          <div class="ai-prompts-list">
+            <div class="ai-prompt" id="ai-p0">
+              <span>"Find a plumber near me under ₦20k"</span><br>
+              <span class="arrow">→ </span><span class="ai-result">AI searches, ranks by reputation.</span>
+            </div>
+            <div class="ai-prompt" id="ai-p1">
+              <span>"Negotiate and set it up for Thursday"</span><br>
+              <span class="arrow">→ </span><span class="ai-result">AI contacts provider, creates the gig.</span>
+            </div>
+            <div class="ai-prompt" id="ai-p2">
+              <span>"Is the job done? Release payment."</span><br>
+              <span class="arrow">→ </span><span class="ai-result">AI verifies, triggers escrow, mints vouch.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Platform Features -->
+    <div class="slide" id="slide-8">
+      <div class="s8-header">
+        <img src="logo.png" alt="GIGR" class="s8-logo" onerror="this.style.display='none'">
+        <div class="slide-title" id="s8-title">PLATFORM FEATURES</div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-col" id="s8-col0">
+          <h3>Non-Blocking Vouching</h3>
+          <p>Reputation minting runs in the background. The UI stays fast.</p>
+        </div>
+        <div class="feature-col" id="s8-col1">
+          <h3>Hyper-Local Discovery</h3>
+          <p>PostGIS matches clients and providers inside precise radii. Beautiful map.</p>
+        </div>
+        <div class="feature-col" id="s8-col2">
+          <h3>Rich Media Messaging</h3>
+          <p>Photo attachments exchanged securely within the Contract Room.</p>
+        </div>
+      </div>
+      <div class="rep-badge" id="s8-badge">Build real reputation — Finish a job, earn a vouch. Verifiable and portable.</div>
+    </div>
+
+    <!-- SLIDE 9: Final -->
+    <div class="slide" id="slide-9">
+      <div class="final-inner">
+        <div class="final-eyebrow" id="final-eyebrow">The future of work</div>
+        <div class="final-slide-word" id="final-word">FRICTIONLESS</div>
+        <div class="final-slide-sub" id="final-sub">Gigs made frictionless. That's Gigr.</div>
+        <div class="final-tags" id="final-tags">
+          <span>Web3</span>
+          <span>AI</span>
+          <span>Trust</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Navigation -->
+  <nav id="nav" role="navigation" aria-label="Slide navigation">
+    <button class="nav-btn" id="btn-prev" aria-label="Previous slide">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 3L5 8l5 5"/>
+      </svg>
+    </button>
+    <div id="progress-dots" role="tablist"></div>
+    <span id="slide-counter" aria-live="polite">01 / 10</span>
+    <button class="nav-btn" id="btn-next" aria-label="Next slide">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 3l5 5-5 5"/>
+      </svg>
+    </button>
+  </nav>
+
+  <script type="module">
+    import { ThreeScene } from './scene.js';
+    import { SlideEngine } from './engine.js';
+    const scene = new ThreeScene('canvas-container');
+    scene.ready.then(() => {
+      new SlideEngine(scene);
+      const loader = document.getElementById('loader');
+      loader.classList.add('hidden');
+      setTimeout(() => loader.remove(), 700);
+    }).catch(() => { /* a .glb failed to load — keep the page black */ });
+  </script>
+
+</body>
+</html>
