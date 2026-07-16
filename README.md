@@ -1,6 +1,6 @@
 # GIGR — Presentation Website
 
-An animated, single-page pitch deck for **GIGR** ("gigs made frictionless"). Ten full-screen slides driven by a step-based reveal engine, layered over a live Three.js background with per-slide 3D shapes, bloom post-processing, and cinematic transitions.
+An animated, single-page pitch deck for **GIGR** ("gigs made frictionless"). Nine full-screen slides driven by a step-based reveal engine, layered over a live Three.js background with per-slide 3D shapes, bloom post-processing, and cinematic transitions.
 
 Built with vanilla ES modules — no build step, no framework, no bundler.
 
@@ -67,15 +67,14 @@ All loaded from CDN via the import map in `index.html` — nothing to install:
 | # | Slide | 3D object |
 | --- | --- | --- |
 | 0 | Hero | Phone + background gears |
-| 1 | The Problem | Gears + floating shards |
-| 2 | Trust Gap | Cracked icosahedron |
+| 1 | The Real Problem | Fracturing core + floating shards |
+| 2 | The Insight | Cracked icosahedron |
 | 3 | Definition | Globe *(zooms into slide 4)* |
-| 4 | Architecture | Gear cluster + energy orbs |
-| 5 | Solution | Network globe + ring |
-| 6 | Web3 | Wireframe torus knot + rings |
-| 7 | Gigidy AI | Brain mesh + pulse orbs |
-| 8 | Platform Features | Structural icosahedron + pillars |
-| 9 | Final | Globe + orbiting rings |
+| 4 | Solution | Neural-network model |
+| 5 | Web3 | Wireframe globe + rings |
+| 6 | Gigidy AI | Robot (animated glb) |
+| 7 | Platform Features | Wireframe globe *(zooms into final)* |
+| 8 | Final | Globe + orbiting rings |
 
 ---
 

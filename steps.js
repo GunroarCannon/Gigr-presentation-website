@@ -40,17 +40,7 @@ export const STEP_CONFIG = [
       { ids: ['#def-foot'],     type: 'fade', stagger: 0 },
     ]
   },
-  // Slide 4 — Components / Glitch
-  {
-    steps: [
-      { ids: ['#s4-line1'], type: 'glitch', stagger: 0 },
-      { ids: ['#s4-line2'], type: 'glitch', stagger: 0 },
-      { ids: ['#s4-c0'],    type: 'rise',   stagger: 0 },
-      { ids: ['#s4-c1'],    type: 'rise',   stagger: 0 },
-      { ids: ['#s4-c2'],    type: 'rise',   stagger: 0 },
-    ]
-  },
-  // Slide 5 — Solution
+  // Slide 4 — Solution
   {
     steps: [
       { ids: ['#s5-title', '#s5-sub'], type: 'rise', stagger: 0.1 },
@@ -59,7 +49,7 @@ export const STEP_CONFIG = [
       { ids: ['#s5-card2'],            type: 'rise', stagger: 0 },
     ]
   },
-  // Slide 6 — Web3 Power
+  // Slide 5 — Web3 Power
   {
     steps: [
       { ids: ['#w3-title'],              type: 'rise', stagger: 0 },
@@ -70,7 +60,7 @@ export const STEP_CONFIG = [
       { ids: ['#w3-p2'],                 type: 'rise', stagger: 0 },
     ]
   },
-  // Slide 7 — Gigidy AI
+  // Slide 6 — Gigidy AI
   {
     steps: [
       { ids: ['#ai-title', '#ai-intro'], type: 'rise', stagger: 0.1 },
@@ -79,7 +69,7 @@ export const STEP_CONFIG = [
       { ids: ['#ai-p2'],                 type: 'rise', stagger: 0 },
     ]
   },
-  // Slide 8 — Platform Features
+  // Slide 7 — Platform Features
   {
     steps: [
       { ids: ['#s8-title'],  type: 'rise', stagger: 0 },
@@ -89,7 +79,7 @@ export const STEP_CONFIG = [
       { ids: ['#s8-badge'],  type: 'fade', stagger: 0 },
     ]
   },
-  // Slide 9 — Final
+  // Slide 8 — Final
   {
     steps: [
       { ids: ['#final-eyebrow'], type: 'fade', stagger: 0 },
@@ -101,4 +91,4 @@ export const STEP_CONFIG = [
 ];
 
 // Slides whose first step auto-plays on entry (no button press needed)
-export const AUTO_FIRST_STEP = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+export const AUTO_FIRST_STEP = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8]);

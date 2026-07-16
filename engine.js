@@ -19,12 +19,11 @@ const FORWARD_TRANSITIONS = {
   '1->2': 'vortex',
   '2->3': 'fade',
   '3->4': 'globeZoom',
-  '4->5': 'partialZoom',
-  '5->6': 'vortex',
-  '6->7': 'fade',
-  '7->8': 'partialZoom',
-  '8->9': 'globeZoom',
-  '9->0': 'fade',
+  '4->5': 'vortex',
+  '5->6': 'fade',
+  '6->7': 'partialZoom',
+  '7->8': 'globeZoom',
+  '8->0': 'fade',
 };
 
 // Animation runners for each step type

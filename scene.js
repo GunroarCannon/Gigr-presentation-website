@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export const TOTAL_SLIDES = 10;
+export const TOTAL_SLIDES = 9;
 
 // ── Global visual config ───────────────────────────────────────────
 // Robot rendering style: 'silhouette' = flat solid black, 'mono' = grayscale.
@@ -477,69 +477,18 @@ export class ThreeScene {
       g.userData = { globe, rings };
     }
 
-    // ── Slide 4: Components — meshing gear train + logo hub RIGHT (x ≈ +3.8) ──
+    // ── Slide 4: Solution — neural-network model RIGHT (x ≈ +3.2) ──
     {
       const g = this.slideGroups[4];
-      const HX = 3.8, HY = 0;
-      // Central hub gear carries the GIGR logo; satellites mesh around it.
-      const base = 0.010;                    // shared surface speed → gears mesh
-      const gearData = [
-        { r: 1.15, pos: [HX,        HY,        0], dir:  1 },
-        { r: 0.70, pos: [HX + 1.48, HY + 0.55, 0], dir: -1 },
-        { r: 0.60, pos: [HX - 0.35, HY + 1.55, 0], dir: -1 },
-        { r: 0.52, pos: [HX + 0.55, HY - 1.55, 0], dir: -1 },
-        { r: 0.42, pos: [HX + 1.95, HY - 0.75, 0], dir:  1 },
-      ];
-      const gears = gearData.map(d => {
-        const gear = this._makeGear(d.r, 1);
-        gear.position.set(...d.pos);
-        g.add(gear);
-        return { mesh: gear, speed: base / d.r, dir: d.dir };
-      });
-
-      // Logo disc floating just in front of the hub gear.
-      const logoMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0 });
-      const logo = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.95), logoMat);
-      logo.position.set(HX, HY, 0.5);
-      g.add(logo);
-      this.texLoader.load('logo.png', tex => {
-        logoMat.map = tex; logoMat.opacity = 1; logoMat.needsUpdate = true;
-      });
-
-      // Thin structural ring framing the hub.
-      const frame = new THREE.Mesh(
-        new THREE.TorusGeometry(1.5, 0.02, 8, 80),
-        new THREE.MeshBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.35 })
-      );
-      frame.position.set(HX, HY, 0);
-      g.add(frame);
-
-      // Orbiting data nodes on the frame — the "component signals".
-      const nodes = [];
-      for (let i = 0; i < 5; i++) {
-        const orb = new THREE.Mesh(
-          new THREE.SphereGeometry(0.07, 12, 12),
-          new THREE.MeshBasicMaterial({ color: 0x0a0a0a })
-        );
-        orb.userData = { angle: (i / 5) * Math.PI * 2, speed: 0.006 + Math.random() * 0.004 };
-        g.add(orb);
-        nodes.push(orb);
-      }
-      g.userData = { gears, logo, frame, nodes, cx: HX, cy: HY };
-    }
-
-    // ── Slide 5: Solution — neural-network model RIGHT (x ≈ +3.2) ──
-    {
-      const g = this.slideGroups[5];
       const net = this._makeNeuralNet(2.0);
       net.position.set(3.2, 0, 0);
       g.add(net);
       g.userData = { net, signals: net.userData.signals, nodePos: net.userData.nodePos, edges: net.userData.edges };
     }
 
-    // ── Slide 6: Web3 — wireframe globe + orbiting nodes LEFT (x ≈ -3.5) ──
+    // ── Slide 5: Web3 — wireframe globe + orbiting nodes LEFT (x ≈ -3.5) ──
     {
-      const g = this.slideGroups[6];
+      const g = this.slideGroups[5];
       const globe = this._makeWireGlobe(2.0, 2, 0.5);
       globe.position.set(-3.5, 0, 0);
       g.add(globe);
@@ -558,16 +507,16 @@ export class ThreeScene {
       g.userData = { knot: globe, rings };
     }
 
-    // ── Slide 7: Gigidy AI — robot.glb (animated); loaded in _loadRobot() ──
+    // ── Slide 6: Gigidy AI — robot.glb (animated); loaded in _loadRobot() ──
     {
-      const g = this.slideGroups[7];
+      const g = this.slideGroups[6];
       g.userData = {};
     }
 
-    // ── Slide 8: Platform Features — wireframe globe, centered ──
-    // The 8 → 9 transition zooms the camera into this globe.
+    // ── Slide 7: Platform Features — wireframe globe, centered ──
+    // The 7 → 8 transition zooms the camera into this globe.
     {
-      const g = this.slideGroups[8];
+      const g = this.slideGroups[7];
       const globe = this._makeWireGlobe(2.6, 3, 0.5);
       g.add(globe);
       const rings = [];
@@ -587,9 +536,9 @@ export class ThreeScene {
       g.userData = { globe, rings };
     }
 
-    // ── Slide 9: Final — wireframe globe + rings, centered ──
+    // ── Slide 8: Final — wireframe globe + rings, centered ──
     {
-      const g = this.slideGroups[9];
+      const g = this.slideGroups[8];
       const globe = this._makeWireGlobe(2.5, 3, 0.55);
       globe.position.set(0, 0, -0.3);
       g.add(globe);
@@ -641,7 +590,7 @@ export class ThreeScene {
   _loadRobot() {
     return new Promise((resolve, reject) => {
       this.loader.load('robot.glb', gltf => {
-        const g = this.slideGroups[7];
+        const g = this.slideGroups[6];
         const model = gltf.scene;
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
@@ -737,24 +686,6 @@ export class ThreeScene {
         break;
 
       case 4:
-        if (d.gears) d.gears.forEach(gd => gd.mesh.rotation.z += gd.speed * gd.dir);
-        if (d.frame) d.frame.rotation.z += 0.002;
-        if (d.logo) {
-          d.logo.position.y = d.cy + sin(t * 0.8) * 0.06;
-          d.logo.rotation.z = sin(t * 0.4) * 0.04;
-        }
-        if (d.nodes) d.nodes.forEach(orb => {
-          const u = orb.userData;
-          u.angle += u.speed;
-          orb.position.set(
-            d.cx + cos(u.angle) * 1.5,
-            d.cy + sin(u.angle) * 1.5,
-            0.1
-          );
-        });
-        break;
-
-      case 5:
         if (d.net) { d.net.rotation.y += 0.004; d.net.rotation.x += 0.0015; }
         if (d.signals && d.nodePos && d.edges) d.signals.forEach((s, i) => {
           const u = s.userData;
@@ -779,7 +710,7 @@ export class ThreeScene {
         });
         break;
 
-      case 6:
+      case 5:
         if (d.knot) { d.knot.rotation.x += 0.004; d.knot.rotation.y += 0.005; }
         if (d.rings) d.rings.forEach((r, i) => {
           r.rotation.z += 0.002 * (i % 2 === 0 ? 1 : -1);
@@ -787,19 +718,19 @@ export class ThreeScene {
         });
         break;
 
-      case 7:
+      case 6:
         if (d.robot) {
           d.robot.rotation.y = sin(t * 0.4) * 0.3;
           d.robot.position.y = -1.2 + sin(t * 0.9) * 0.08;
         }
         break;
 
-      case 8:
+      case 7:
         if (d.globe) { d.globe.rotation.y += 0.004; d.globe.rotation.x += 0.0015; }
         if (d.rings) d.rings.forEach(r => { r.rotation.z += r.userData.speed; });
         break;
 
-      case 9:
+      case 8:
         if (d.globe) { d.globe.rotation.y += 0.006; d.globe.rotation.x += 0.002; }
         if (d.rings) d.rings.forEach(r => {
           r.rotation.z += r.userData.speed;
