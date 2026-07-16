@@ -216,7 +216,7 @@
     #slide-0 { padding: 0; }
 
     .brand-name {
-      font-size: clamp(6rem, 15vw, 12rem);
+      font-size: clamp(5rem, 12vw, 9rem);
       font-weight: 800;
       letter-spacing: -0.045em;
       line-height: 1;
@@ -224,11 +224,16 @@
     }
 
     .brand-logo {
-      height: clamp(52px, 8vw, 92px);
+      position: absolute;
+      top: -9%;
+      right: -13%;
+      height: min(74vh, 620px);
       width: auto;
       object-fit: contain;
-      margin-bottom: 18px;
-      display: block;
+      margin: 0;
+      pointer-events: none;
+      transform-origin: center;
+      will-change: transform, opacity;
     }
 
     .tagline {
@@ -424,7 +429,7 @@
     .ai-result { font-weight: 600; color: var(--text); }
 
     /* ─── Slide 8: Platform ─── */
-    #slide-8 {
+    #slide-7 {
       align-items: flex-start;
       padding: 64px 72px 80px;
       flex-direction: column;
@@ -439,7 +444,7 @@
     }
 
     .s8-logo {
-      height: 44px;
+      height: 58px;
       width: auto;
       object-fit: contain;
     }
@@ -498,7 +503,7 @@
     }
 
     /* ─── Slide 9: Final ─── */
-    #slide-9 {
+    #slide-8 {
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -654,7 +659,7 @@
       .split-3d { display: none; }
       .split-content { padding: 52px 32px; }
       .features-grid { grid-template-columns: 1fr; }
-      #slide-8 { padding: 52px 32px; }
+      #slide-7 { padding: 52px 32px; }
     }
   </style>
 </head>

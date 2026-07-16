@@ -78,8 +78,17 @@ function glitchIn(el) {
   }, 40);
 }
 
-function runTypewriter(tagEl, cursorEl, text, speed = 45) {
-  tagEl.textContent = '';
+// Hero logo: large brand mark anchored in the top-right corner, resting
+// partially off-screen (never fully revealed). It drifts gently into place.
+function runHeroLogo(el) {
+  el.style.visibility = 'visible';
+  gsap.fromTo(el,
+    { opacity: 0, x: () => window.innerWidth * 0.16, y: () => -window.innerHeight * 0.1, scale: 1.08 },
+    { opacity: 1, x: 0, y: 0, scale: 1, duration: 1.1, ease: 'power3.out' }
+  );
+}
+
+function runTypewriter(tagEl, cursorEl, text, speed = 45) {  tagEl.textContent = '';
   gsap.set(tagEl.parentElement, { opacity: 1, visibility: 'visible' });
   cursorEl.style.display = 'inline-block';
   let i = 0;
@@ -205,6 +214,10 @@ export class SlideEngine {
       const el = document.querySelector(id);
       if (!el) return;
       const delay = step.stagger * i;
+      if (id === '#s1-logo') {
+        setTimeout(() => runHeroLogo(el), delay * 1000);
+        return;
+      }
       if (step.type === 'typewriter') {
         setTimeout(() => {
           const tagText = document.getElementById('s1-tagline-text');
