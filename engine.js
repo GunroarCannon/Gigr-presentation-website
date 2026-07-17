@@ -133,9 +133,13 @@ export class SlideEngine {
     document.getElementById('btn-next').addEventListener('click', () => this.next());
     document.getElementById('btn-prev').addEventListener('click', () => this.prev());
 
+    // Keyboard + presentation-clicker keys. Most remotes emit PageDown/PageUp;
+    // arrows and spacebar cover laptops and the rest.
+    const NEXT_KEYS = ['PageDown', 'ArrowRight', 'ArrowDown', ' ', 'Spacebar'];
+    const PREV_KEYS = ['PageUp', 'ArrowLeft', 'ArrowUp'];
     document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); this.next(); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); this.prev(); }
+      if (NEXT_KEYS.includes(e.key)) { e.preventDefault(); this.next(); }
+      else if (PREV_KEYS.includes(e.key)) { e.preventDefault(); this.prev(); }
     });
 
     let wheelLock = false;
@@ -150,6 +154,13 @@ export class SlideEngine {
     document.addEventListener('touchend', e => {
       const dx = tx - e.changedTouches[0].clientX, dy = ty - e.changedTouches[0].clientY;
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 45) { if (dx > 0) this.next(); else this.prev(); }
+    });
+
+    // Tap/click on empty screen area: left half → previous, right half → next.
+    // Ignores interactive elements so buttons, links and dots keep working.
+    document.addEventListener('click', e => {
+      if (e.target.closest('a, button, input, textarea, select, label, [role="button"], .nav-btn, .dot, #fullscreen-btn')) return;
+      if (e.clientX < window.innerWidth / 2) this.prev(); else this.next();
     });
 
     document.getElementById('fullscreen-btn')?.addEventListener('click', () => {

@@ -25,8 +25,8 @@ Then open the printed URL (e.g. `http://localhost:3000`).
 
 | Action | Input |
 | --- | --- |
-| Next step / next slide | `→` · `Space` · click **›** · scroll down · swipe left |
-| Previous slide | `←` · click **‹** · scroll up · swipe right |
+| Next step / next slide | `→` `↓` `PageDown` · `Space` · click **›** · tap right side · scroll down · swipe left |
+| Previous slide | `←` `↑` `PageUp` · click **‹** · tap left side · scroll up · swipe right |
 | Jump to slide | Click a progress dot |
 | Fullscreen | Top-right button |
 
