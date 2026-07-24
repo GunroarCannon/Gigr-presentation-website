@@ -23,7 +23,9 @@ const FORWARD_TRANSITIONS = {
   '5->6': 'fade',
   '6->7': 'partialZoom',
   '7->8': 'globeZoom',
-  '8->0': 'fade',
+  '8->9': 'fade',
+  '9->10': 'globeZoom',
+  '10->0': 'fade',
 };
 
 // Animation runners for each step type
@@ -441,7 +443,7 @@ export class SlideEngine {
       { x: 0, y: 0, z: 5 }, { x: -0.2, y: 0, z: 5 }, { x: 0, y: 0, z: 5 },
       { x: 0, y: 0, z: 5 }, { x: 0.25, y: -0.1, z: 5 }, { x: 0.2, y: 0, z: 5 },
       { x: -0.2, y: 0, z: 5 }, { x: -0.25, y: 0, z: 5 }, { x: 0, y: 0.05, z: 5 },
-      { x: 0, y: 0, z: 5 }
+      { x: 0, y: 0, z: 5 }, { x: 0, y: 0, z: 5 }, { x: 0, y: 0, z: 5 }
     ];
     const h = camHints[newIdx] || { x: 0, y: 0, z: 5 };
     gsap.to(this.scene.camera.position, { x: h.x, y: h.y, z: h.z, duration: 0.7, ease: 'power2.inOut' });

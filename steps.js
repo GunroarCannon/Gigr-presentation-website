@@ -79,7 +79,21 @@ export const STEP_CONFIG = [
       { ids: ['#s8-badge'],  type: 'fade', stagger: 0 },
     ]
   },
-  // Slide 8 — Final
+  // Slide 8 — Business Model
+  {
+    steps: [
+      { ids: ['#bm-title', '#bm-sub'], type: 'rise', stagger: 0.1 },
+      { ids: ['#bm-table'],            type: 'fade', stagger: 0 },
+    ]
+  },
+  // Slide 9 — Competitive Landscape
+  {
+    steps: [
+      { ids: ['#cl-title', '#cl-sub'], type: 'rise', stagger: 0.1 },
+      { ids: ['#cl-table'],            type: 'fade', stagger: 0 },
+    ]
+  },
+  // Slide 10 — Final
   {
     steps: [
       { ids: ['#final-eyebrow'], type: 'fade', stagger: 0 },
@@ -91,4 +105,4 @@ export const STEP_CONFIG = [
 ];
 
 // Slides whose first step auto-plays on entry (no button press needed)
-export const AUTO_FIRST_STEP = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+export const AUTO_FIRST_STEP = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);

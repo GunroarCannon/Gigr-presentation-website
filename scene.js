@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export const TOTAL_SLIDES = 9;
+export const TOTAL_SLIDES = 11;
 
 // ── Global visual config ───────────────────────────────────────────
 // Robot rendering style: 'silhouette' = flat solid black, 'mono' = grayscale.
@@ -513,12 +513,22 @@ export class ThreeScene {
       g.userData = {};
     }
 
-    // ── Slide 7: Platform Features — wireframe globe, centered ──
-    // The 7 → 8 transition zooms the camera into this globe.
+    // ── Slide 7: Platform Features ──
     {
       const g = this.slideGroups[7];
       const globe = this._makeWireGlobe(2.6, 3, 0.5);
       g.add(globe);
+      
+      const shards = [];
+      for(let i=0; i<12; i++){
+        const s = this._makeCrystalShard(0.35);
+        const a = (i/12) * Math.PI * 2;
+        s.position.set(Math.cos(a)*3.5, Math.sin(a)*1.5, Math.sin(a)*2);
+        s.userData = { angle: a, speed: 0.0015 + Math.random()*0.002, r: 3.2 + Math.random() };
+        g.add(s);
+        shards.push(s);
+      }
+      
       const rings = [];
       [
         { r: 3.3, tilt: Math.PI / 2,        speed:  0.003 },
@@ -533,12 +543,36 @@ export class ThreeScene {
         g.add(ring);
         rings.push(ring);
       });
-      g.userData = { globe, rings };
+      g.userData = { globe, rings, shards };
     }
 
-    // ── Slide 8: Final — wireframe globe + rings, centered ──
+    // ── Slide 8: Business Model ──
     {
       const g = this.slideGroups[8];
+      const knot = this._makeTorusKnot();
+      knot.position.set(3.8, 0, -1);
+      knot.scale.setScalar(1.2);
+      g.add(knot);
+      g.userData = { knot };
+    }
+
+    // ── Slide 9: Competitive Landscape ──
+    {
+      const g = this.slideGroups[9];
+      const gear1 = this._makeGear(1.5, 0.8);
+      gear1.position.set(4.2, 0.8, -1);
+      const gear2 = this._makeGear(0.9, 0.6);
+      gear2.position.set(2.6, -1.0, -1.5);
+      const gear3 = this._makeGear(0.7, 0.9);
+      gear3.position.set(5.5, -0.6, -0.5);
+      
+      g.add(gear1, gear2, gear3);
+      g.userData = { gear1, gear2, gear3 };
+    }
+
+    // ── Slide 10: Final — wireframe globe + rings, centered ──
+    {
+      const g = this.slideGroups[10];
       const globe = this._makeWireGlobe(2.5, 3, 0.55);
       globe.position.set(0, 0, -0.3);
       g.add(globe);
@@ -728,9 +762,26 @@ export class ThreeScene {
       case 7:
         if (d.globe) { d.globe.rotation.y += 0.004; d.globe.rotation.x += 0.0015; }
         if (d.rings) d.rings.forEach(r => { r.rotation.z += r.userData.speed; });
+        if (d.shards) d.shards.forEach(s => {
+          s.userData.angle += s.userData.speed;
+          s.position.x = Math.cos(s.userData.angle) * s.userData.r;
+          s.position.z = Math.sin(s.userData.angle) * s.userData.r;
+          s.rotation.x += 0.01;
+          s.rotation.y += 0.01;
+        });
         break;
 
       case 8:
+        if (d.knot) { d.knot.rotation.y += 0.005; d.knot.rotation.x += 0.002; }
+        break;
+
+      case 9:
+        if (d.gear1) d.gear1.rotation.z += 0.002;
+        if (d.gear2) d.gear2.rotation.z -= 0.003;
+        if (d.gear3) d.gear3.rotation.z -= 0.004;
+        break;
+
+      case 10:
         if (d.globe) { d.globe.rotation.y += 0.006; d.globe.rotation.x += 0.002; }
         if (d.rings) d.rings.forEach(r => {
           r.rotation.z += r.userData.speed;
