@@ -2,7 +2,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export const TOTAL_SLIDES = 11;
+
+export const TOTAL_SLIDES = 12
 
 // ── Global visual config ───────────────────────────────────────────
 // Robot rendering style: 'silhouette' = flat solid black, 'mono' = grayscale.

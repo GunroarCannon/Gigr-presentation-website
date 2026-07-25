@@ -734,6 +734,14 @@
       text-align: center;
     }
 
+    /* ─── Slide 9: Final ─── */
+    #slide-9 {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
     .final-inner {
       display: flex;
       flex-direction: column;
@@ -1254,7 +1262,58 @@
       </div>
     </div>
 
+<!-- SLIDE 12: Final with Demo Video -->
+<!-- SLIDE 11: Final with Demo Video (FULLY CENTERED) -->
+<div class="slide" id="slide-11" style="justify-content: center; align-items: center; padding: 20px;">
+  <div style="
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center;
+    width: 92%; 
+    max-width: 1100px;
+    height: 90vh;
+    max-height: 800px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 28px;
+    padding: 24px 28px 28px;
+    box-shadow: 0 30px 90px -40px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.5);
+  ">
+    <!-- Top section: title -->
+    <div style="width: 100%; text-align: center; margin-bottom: 12px;">
+      <div style="font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.42em; text-transform: uppercase; color: var(--text-3); font-weight: 600;">
+        ⏵ See it in action
+      </div>
+      <div style="font-size: clamp(0.9rem, 1.4vw, 1.15rem); color: var(--text-2); font-weight: 500; margin-top: 4px;">
+        Gigr connects a client and provider seamlessly in the background.
+      </div>
+    </div>
+
+    <!-- Video – takes up most space, perfectly centered -->
+    <video 
+      id="demo-video"
+      controls
+      playsinline
+      preload="auto"
+      style="
+        width: 100%; 
+        flex: 1;
+        min-height: 0;
+        border-radius: 16px; 
+        background: #0a0a0a; 
+        object-fit: contain;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+      "
+    >
+      <source src="demo.mp4" type="video/mp4">
+      Your browser doesn't support video.
+    </video>
+
   </div>
+</div>
 
   <!-- Navigation -->
   <nav id="nav" role="navigation" aria-label="Slide navigation">
@@ -1265,7 +1324,9 @@
       </svg>
     </button>
     <div id="progress-dots" role="tablist"></div>
+
     <span id="slide-counter" aria-live="polite">01 / 11</span>
+
     <button class="nav-btn" id="btn-next" aria-label="Next slide">
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
         stroke-linejoin="round">
@@ -1274,16 +1335,50 @@
     </button>
   </nav>
 
-  <script type="module">
-    import { ThreeScene } from './scene.js';
-    import { SlideEngine } from './engine.js';
-    const scene = new ThreeScene('canvas-container');
-    scene.ready.then(() => {
-      new SlideEngine(scene);
-      const loader = document.getElementById('loader');
-      loader.classList.add('hidden');
-      setTimeout(() => loader.remove(), 700);
-    }).catch(() => { /* a .glb failed to load — keep the page black */ });
+  <script type="module">import { ThreeScene } from './scene.js';
+import { SlideEngine } from './engine.js';
+
+const scene = new ThreeScene('canvas-container');
+
+scene.ready.then(() => {
+  const engine = new SlideEngine(scene);
+  const video = document.getElementById('demo-video');
+
+  if (video) {
+    // Start loading the video immediately (background buffering)
+    video.load();
+
+    // Override the internal transition-finalizer
+    const originalFinish = engine._finishTransition.bind(engine);
+    engine._finishTransition = function(newIdx) {
+      // Let the engine finish the slide switch first
+      originalFinish(newIdx);
+
+      // Now control the video based on the new slide index
+      const TARGET_SLIDE = 11;   // 0‑based → your 8th slide
+
+      if (newIdx === TARGET_SLIDE) {
+        video.currentTime = 0;          // rewind to start
+        video.play().catch(err => {
+          // If autoplay is blocked (shouldn't happen with user gesture),
+          // the controls will still be visible for manual play
+          console.warn('Autoplay blocked:', err);
+        });
+      } else {
+        // Pause when leaving the demo slide
+        if (!video.paused) video.pause();
+      }
+    };
+  }
+
+  // Remove loader
+  const loader = document.getElementById('loader');
+  loader.classList.add('hidden');
+  setTimeout(() => loader.remove(), 700);
+
+}).catch((err) => {
+  console.error('Initialization failed:', err);
+});
   </script>
 
 </body>
