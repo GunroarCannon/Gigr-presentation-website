@@ -517,34 +517,22 @@ export class ThreeScene {
     // ── Slide 7: Platform Features ──
     {
       const g = this.slideGroups[7];
-      const globe = this._makeWireGlobe(2.6, 3, 0.5);
-      g.add(globe);
       
-      const shards = [];
-      for(let i=0; i<12; i++){
-        const s = this._makeCrystalShard(0.35);
-        const a = (i/12) * Math.PI * 2;
-        s.position.set(Math.cos(a)*3.5, Math.sin(a)*1.5, Math.sin(a)*2);
-        s.userData = { angle: a, speed: 0.0015 + Math.random()*0.002, r: 3.2 + Math.random() };
-        g.add(s);
-        shards.push(s);
-      }
+      const mapTex = this.texLoader.load('map.jpg');
+      mapTex.colorSpace = THREE.SRGBColorSpace;
+      // map is 1011x1304. Aspect ratio is ~0.775
+      const mapGeo = new THREE.PlaneGeometry(3.875 * 1.3, 5 * 1.3);
+      const mapMat = new THREE.MeshBasicMaterial({ map: mapTex });
+      mapMat.color.setScalar(1.25); // Boost brightness further
+      const mapMesh = new THREE.Mesh(mapGeo, mapMat);
       
-      const rings = [];
-      [
-        { r: 3.3, tilt: Math.PI / 2,        speed:  0.003 },
-        { r: 3.8, tilt: Math.PI / 2 + 0.5,  speed: -0.0024 },
-      ].forEach(d => {
-        const ring = new THREE.Mesh(
-          new THREE.TorusGeometry(d.r, 0.012, 8, 90),
-          new THREE.MeshBasicMaterial({ color: 0x1a1a1a, transparent: true, opacity: 0.3 })
-        );
-        ring.rotation.x = d.tilt;
-        ring.userData.speed = d.speed;
-        g.add(ring);
-        rings.push(ring);
-      });
-      g.userData = { globe, rings, shards };
+      // Slight rotation for some 3D feel
+      mapMesh.rotation.y = 0.15;
+      mapMesh.rotation.x = -0.05;
+      mapMesh.position.set(-3.2, 0, -1);
+      g.add(mapMesh);
+      
+      g.userData = { map: mapMesh };
     }
 
     // ── Slide 8: Business Model ──

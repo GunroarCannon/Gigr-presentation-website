@@ -508,20 +508,52 @@
     }
 
     /* ─── Slide 8: Platform ─── */
-    #slide-7 {
-      align-items: center;
-      justify-content: center;
-      padding: 64px 72px 80px;
-      flex-direction: column;
-      text-align: center;
-      gap: 32px;
+    #slide-6, #slide-7 {
+      padding: 0;
+    }
+    
+    #slide-7 .split-content {
+      padding: 20px 40px 20px 20px;
+      gap: 12px;
     }
 
-    .s8-header {
+    #slide-7 .slide-title {
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+    }
+
+    #slide-7 .s8-header {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 28px;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    #slide-7 .s8-logo {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    #slide-7 .feature-col {
+      padding: 14px 16px 14px 16px;
+    }
+
+    #slide-7 .features-grid {
+      gap: 10px;
+    }
+
+    #slide-7 .feature-col h3 {
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    #slide-7 .feature-col p {
+      font-size: 0.95rem;
+      line-height: 1.35;
+    }
+
+    #slide-7 .rep-badge {
+      margin-top: 10px;
     }
 
     .s8-logo {
@@ -727,7 +759,7 @@
     }
 
     /* ─── Slide 10: Final ─── */
-    #slide-10 {
+    #slide-11 {
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -1128,6 +1160,7 @@
       </div>
     </div>
 
+
     <!-- SLIDE 6: Gigidy AI -->
     <div class="slide" id="slide-6">
       <div class="split">
@@ -1157,26 +1190,33 @@
 
     <!-- SLIDE 7: Platform Features -->
     <div class="slide" id="slide-7">
-      <div class="s8-header">
-        <img src="logo.png" alt="GIGR" class="s8-logo" onerror="this.style.display='none'">
-        <div class="slide-title" id="s8-title">PLATFORM FEATURES</div>
+      <div class="split">
+        <div class="split-3d"></div>
+        <div class="split-content pad-full">
+          <div class="s8-header">
+            <img src="logo.png" alt="GIGR" class="s8-logo" onerror="this.style.display='none'">
+            <div class="slide-title" id="s8-title">PLATFORM FEATURES</div>
+          </div>
+          <div class="features-grid" style="grid-template-columns: 1fr;">
+            <div class="feature-col" id="s8-col0">
+              <h3>Instant Vouching</h3>
+              <p>Reputation is minted in the background. The app never slows down.</p>
+            </div>
+            <div class="feature-col" id="s8-col1">
+              <h3>Hyper-Local Discovery</h3>
+              <p>See exactly how far a service is from you on a live map. We focus on local folks, not remote work across
+                the globe.</p>
+            </div>
+            <div class="feature-col" id="s8-col2">
+              <h3>In-App Messaging</h3>
+              <p>Chat and share photos securely inside every contract.</p>
+            </div>
+          </div>
+          <div>
+            <div class="rep-badge" id="s8-badge">Finish a job, earn a vouch. Verifiable and portable.</div>
+          </div>
+        </div>
       </div>
-      <div class="features-grid">
-        <div class="feature-col" id="s8-col0">
-          <h3>Instant Vouching</h3>
-          <p>Reputation is minted in the background. The app never slows down.</p>
-        </div>
-        <div class="feature-col" id="s8-col1">
-          <h3>Hyper-Local Discovery</h3>
-          <p>See exactly how far a service is from you on a live map. We focus on local folks, not remote work across
-            the globe.</p>
-        </div>
-        <div class="feature-col" id="s8-col2">
-          <h3>In-App Messaging</h3>
-          <p>Chat and share photos securely inside every contract.</p>
-        </div>
-      </div>
-      <div class="rep-badge" id="s8-badge">Finish a job, earn a vouch. Verifiable and portable.</div>
     </div>
 
     <!-- SLIDE 8: Business Model -->
@@ -1248,23 +1288,10 @@
       </div>
     </div>
 
-    <!-- SLIDE 10: Final -->
-    <div class="slide" id="slide-10">
-      <div class="final-inner">
-        <div class="final-eyebrow" id="final-eyebrow">The future of work</div>
-        <div class="final-slide-word" id="final-word">FRICTIONLESS</div>
-        <div class="final-slide-sub" id="final-sub">Skilled workers your neighbours trust. Payment guaranteed.</div>
-        <div class="final-tags" id="final-tags">
-          <span>Web3</span>
-          <span>AI</span>
-          <span>Trust</span>
-        </div>
-      </div>
-    </div>
 
 <!-- SLIDE 12: Final with Demo Video -->
 <!-- SLIDE 11: Final with Demo Video (FULLY CENTERED) -->
-<div class="slide" id="slide-11" style="justify-content: center; align-items: center; padding: 20px;">
+<div class="slide" id="slide-10" style="justify-content: center; align-items: center; padding: 20px;">
   <div style="
     display: flex; 
     flex-direction: column; 
@@ -1311,9 +1338,24 @@
       <source src="demo.mp4" type="video/mp4">
       Your browser doesn't support video.
     </video>
-
+	
   </div>
 </div>
+
+    <!-- SLIDE 10: Final -->
+    <div class="slide" id="slide-11">
+      <div class="final-inner">
+        <div class="final-eyebrow" id="final-eyebrow">The future of work</div>
+        <div class="final-slide-word" id="final-word">FRICTIONLESS</div>
+        <div class="final-slide-sub" id="final-sub">Skilled workers your neighbours trust. Payment guaranteed.</div>
+        <div class="final-tags" id="final-tags">
+          <span>Web3</span>
+          <span>AI</span>
+          <span>Trust</span>
+        </div>
+      </div>
+    </div>
+
 
   <!-- Navigation -->
   <nav id="nav" role="navigation" aria-label="Slide navigation">
@@ -1355,7 +1397,7 @@ scene.ready.then(() => {
       originalFinish(newIdx);
 
       // Now control the video based on the new slide index
-      const TARGET_SLIDE = 11;   // 0‑based → your 8th slide
+      const TARGET_SLIDE = 10;   // 0‑based → your 8th slide
 
       if (newIdx === TARGET_SLIDE) {
         video.currentTime = 0;          // rewind to start

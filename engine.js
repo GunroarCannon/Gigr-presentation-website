@@ -2,7 +2,7 @@
 import gsap from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/src/index.js';
 import { TextPlugin } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.2/src/TextPlugin.js';
 import { TOTAL_SLIDES } from './scene.js';
-import { STEP_CONFIG, AUTO_FIRST_STEP } from './steps.js';
+import { STEP_CONFIG, AUTO_FIRST_STEP, AUTO_ADVANCE_STEPS } from './steps.js';
 import * as THREE from 'three';
 
 gsap.registerPlugin(TextPlugin);
@@ -249,6 +249,21 @@ export class SlideEngine {
     if (AUTO_FIRST_STEP.has(idx)) {
       this._fireStep(idx, 0);
       this.stepIndex[idx] = 1;
+    }
+    
+    if (AUTO_ADVANCE_STEPS) {
+      const runNext = () => {
+        if (this.current !== idx) return;
+        const cfg = STEP_CONFIG[idx];
+        if (!cfg) return;
+        const stepsLeft = cfg.steps.length - this.stepIndex[idx];
+        if (stepsLeft > 0) {
+          this._fireStep(idx, this.stepIndex[idx]);
+          this.stepIndex[idx]++;
+          setTimeout(runNext, 400); // 400ms between automatic reveals
+        }
+      };
+      setTimeout(runNext, 400);
     }
   }
 
