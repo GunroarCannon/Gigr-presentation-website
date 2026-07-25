@@ -456,7 +456,7 @@ export class ThreeScene {
     // ── Slide 3: Definition — large globe + rings, centered ──
     // Camera zooms into it during the → slide 4 transition (_globeZoom).
     {
-      const g = this.slideGroups[3];
+      const g = this.slideGroups[7];
       const globe = this._makeGlobe(2.4, 3);
       globe.position.set(0, 0, 0);
       g.add(globe);
@@ -480,7 +480,7 @@ export class ThreeScene {
 
     // ── Slide 4: Solution — neural-network model RIGHT (x ≈ +3.2) ──
     {
-      const g = this.slideGroups[4];
+      const g = this.slideGroups[3];
       const net = this._makeNeuralNet(2.0);
       net.position.set(3.2, 0, 0);
       g.add(net);
@@ -516,7 +516,7 @@ export class ThreeScene {
 
     // ── Slide 7: Platform Features ──
     {
-      const g = this.slideGroups[7];
+      const g = this.slideGroups[4];
       
       const mapTex = this.texLoader.load('map.jpg');
       mapTex.colorSpace = THREE.SRGBColorSpace;
@@ -561,7 +561,7 @@ export class ThreeScene {
 
     // ── Slide 10: Final — wireframe globe + rings, centered ──
     {
-      const g = this.slideGroups[10];
+      const g = this.slideGroups[11];
       const globe = this._makeWireGlobe(2.5, 3, 0.55);
       globe.position.set(0, 0, -0.3);
       g.add(globe);
@@ -700,7 +700,7 @@ export class ThreeScene {
         });
         break;
 
-      case 3:
+      case 7:
         if (d.globe) { d.globe.rotation.y += 0.005; d.globe.rotation.x += 0.0015; }
         if (d.rings) d.rings.forEach(r => {
           r.rotation.z += r.userData.speed;
@@ -708,7 +708,7 @@ export class ThreeScene {
         });
         break;
 
-      case 4:
+      case 3:
         if (d.net) { d.net.rotation.y += 0.004; d.net.rotation.x += 0.0015; }
         if (d.signals && d.nodePos && d.edges) d.signals.forEach((s, i) => {
           const u = s.userData;
@@ -748,7 +748,7 @@ export class ThreeScene {
         }
         break;
 
-      case 7:
+      case 4:
         if (d.globe) { d.globe.rotation.y += 0.004; d.globe.rotation.x += 0.0015; }
         if (d.rings) d.rings.forEach(r => { r.rotation.z += r.userData.speed; });
         if (d.shards) d.shards.forEach(s => {
@@ -770,7 +770,7 @@ export class ThreeScene {
         if (d.gear3) d.gear3.rotation.z -= 0.004;
         break;
 
-      case 10:
+      case 11:
         if (d.globe) { d.globe.rotation.y += 0.006; d.globe.rotation.x += 0.002; }
         if (d.rings) d.rings.forEach(r => {
           r.rotation.z += r.userData.speed;

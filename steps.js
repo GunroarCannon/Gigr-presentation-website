@@ -16,40 +16,40 @@ export const STEP_CONFIG = [
   {
     steps: [
       { ids: ['#s2-title', '#s2-body'], type: 'rise', stagger: 0.1 },
-      { ids: ['#s2-card0'],             type: 'rise', stagger: 0 },
-      { ids: ['#s2-card1'],             type: 'rise', stagger: 0 },
-      { ids: ['#s2-card2'],             type: 'rise', stagger: 0 },
+      { ids: ['#s2-card0'],             type: 'instant', stagger: 0 },
+      { ids: ['#s2-card1'],             type: 'instant', stagger: 0 },
+      { ids: ['#s2-card2'],             type: 'instant', stagger: 0 },
     ]
   },
   // Slide 2 — Trust Gap
   {
     steps: [
       { ids: ['#s6-title', '#s6-body'], type: 'rise', stagger: 0.1 },
-      { ids: ['#s6-card0'],             type: 'pop',  stagger: 0 },
-      { ids: ['#s6-card1'],             type: 'pop',  stagger: 0 },
-      { ids: ['#s6-card2'],             type: 'pop',  stagger: 0 },
+      { ids: ['#s6-card0'],             type: 'instant',  stagger: 0 },
+      { ids: ['#s6-card1'],             type: 'instant',  stagger: 0 },
+      { ids: ['#s6-card2'],             type: 'instant',  stagger: 0 },
     ]
   },
-  // Slide 3 — Definition
-  {
-    steps: [
-      { ids: ['#def-eyebrow'],  type: 'fade', stagger: 0 },
-      { ids: ['#def-word'],     type: 'rise', stagger: 0 },
-      { ids: ['#def-phonetic'], type: 'fade', stagger: 0 },
-      { ids: ['#def-meaning'],  type: 'fade', stagger: 0 },
-      { ids: ['#def-foot'],     type: 'fade', stagger: 0 },
-    ]
-  },
-  // Slide 4 — Solution
+  // Slide 3 (Was 4) — Solution
   {
     steps: [
       { ids: ['#s5-title', '#s5-sub'], type: 'rise', stagger: 0.1 },
-      { ids: ['#s5-card0'],            type: 'rise', stagger: 0 },
-      { ids: ['#s5-card1'],            type: 'rise', stagger: 0 },
-      { ids: ['#s5-card2'],            type: 'rise', stagger: 0 },
+      { ids: ['#s5-card0'],            type: 'instant', stagger: 0 },
+      { ids: ['#s5-card1'],            type: 'instant', stagger: 0 },
+      { ids: ['#s5-card2'],            type: 'instant', stagger: 0 },
     ]
   },
-  // Slide 5 — Web3 Power
+  // Slide 4 (Was 7) — Platform Features
+  {
+    steps: [
+      { ids: ['#s8-title'],  type: 'rise', stagger: 0 },
+      { ids: ['#s8-col0'],   type: 'instant',  stagger: 0 },
+      { ids: ['#s8-col1'],   type: 'instant',  stagger: 0 },
+      { ids: ['#s8-col2'],   type: 'instant',  stagger: 0 },
+      { ids: ['#s8-badge'],  type: 'fade', stagger: 0 },
+    ]
+  },
+  // Slide 5 (Was 5) — Web3 Power
   {
     steps: [
       { ids: ['#w3-title'],              type: 'rise', stagger: 0 },
@@ -60,7 +60,7 @@ export const STEP_CONFIG = [
       { ids: ['#w3-p2'],                 type: 'rise', stagger: 0 },
     ]
   },
-  // Slide 6 — Gigidy AI
+  // Slide 6 (Was 6) — Gigidy AI
   {
     steps: [
       { ids: ['#ai-title', '#ai-intro'], type: 'rise', stagger: 0.1 },
@@ -69,14 +69,14 @@ export const STEP_CONFIG = [
       { ids: ['#ai-p2'],                 type: 'rise', stagger: 0 },
     ]
   },
-  // Slide 7 — Platform Features
+  // Slide 7 (Was 3) — Definition
   {
     steps: [
-      { ids: ['#s8-title'],  type: 'rise', stagger: 0 },
-      { ids: ['#s8-col0'],   type: 'pop',  stagger: 0 },
-      { ids: ['#s8-col1'],   type: 'pop',  stagger: 0 },
-      { ids: ['#s8-col2'],   type: 'pop',  stagger: 0 },
-      { ids: ['#s8-badge'],  type: 'fade', stagger: 0 },
+      { ids: ['#def-eyebrow'],  type: 'fade', stagger: 0 },
+      { ids: ['#def-word'],     type: 'rise', stagger: 0 },
+      { ids: ['#def-phonetic'], type: 'fade', stagger: 0 },
+      { ids: ['#def-meaning'],  type: 'fade', stagger: 0 },
+      { ids: ['#def-foot'],     type: 'fade', stagger: 0 },
     ]
   },
   // Slide 8 — Business Model
@@ -93,7 +93,11 @@ export const STEP_CONFIG = [
       { ids: ['#cl-table'],            type: 'fade', stagger: 0 },
     ]
   },
-  // Slide 10 — Final
+  // Slide 10 — Demo Video
+  {
+    steps: []
+  },
+  // Slide 11 — Final
   {
     steps: [
       { ids: ['#final-eyebrow'], type: 'fade', stagger: 0 },
@@ -104,7 +108,7 @@ export const STEP_CONFIG = [
   },
 ];
 
-export const AUTO_FIRST_STEP = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+export const AUTO_FIRST_STEP = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 // Toggle to automatically advance all steps on a slide without clicking
 export const AUTO_ADVANCE_STEPS = true;

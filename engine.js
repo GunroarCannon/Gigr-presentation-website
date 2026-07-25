@@ -54,6 +54,9 @@ function runStepType(el, type) {
     case 'glitch':
       glitchIn(el);
       break;
+    case 'instant':
+      gsap.set(el, { opacity: 1, scale: 1, y: 0, skewY: 0 });
+      break;
     case 'typewriter':
       // handled separately
       break;
@@ -296,8 +299,9 @@ export class SlideEngine {
     if (this.transitioning) return;
     this.transitioning = true;
 
-    const oldEl = document.getElementById(`slide-${this.current}`);
-    const newEl = document.getElementById(`slide-${newIdx}`);
+    const slides = document.querySelectorAll('.slide');
+    const oldEl = slides[this.current];
+    const newEl = slides[newIdx];
     const oldGroup = this.scene.slideGroups[this.current];
     const newGroup = this.scene.slideGroups[newIdx];
 
@@ -456,8 +460,8 @@ export class SlideEngine {
     // Per-slide camera position hints
     const camHints = [
       { x: 0, y: 0, z: 5 }, { x: -0.2, y: 0, z: 5 }, { x: 0, y: 0, z: 5 },
-      { x: 0, y: 0, z: 5 }, { x: 0.25, y: -0.1, z: 5 }, { x: 0.2, y: 0, z: 5 },
-      { x: -0.2, y: 0, z: 5 }, { x: -0.25, y: 0, z: 5 }, { x: 0, y: 0.05, z: 5 },
+      { x: 0.25, y: -0.1, z: 5 }, { x: -0.25, y: 0, z: 5 }, { x: 0.2, y: 0, z: 5 },
+      { x: -0.2, y: 0, z: 5 }, { x: 0, y: 0, z: 5 }, { x: 0, y: 0.05, z: 5 },
       { x: 0, y: 0, z: 5 }, { x: 0, y: 0, z: 5 }, { x: 0, y: 0, z: 5 }
     ];
     const h = camHints[newIdx] || { x: 0, y: 0, z: 5 };
